@@ -3,12 +3,15 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
 from pydantic import BaseModel, EmailStr
+from app.utils import hash_password
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
+    password: str
 
 class UserResponse(BaseModel):
     id: int
@@ -29,7 +32,12 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    db_user = models.User(email=user.email, username=user.username, hashed_password="test")
+    hashed_pw = hash_password(user.password)
+    db_user = models.User(
+        email=user.email,
+        username=user.username,
+        hashed_password=hashed_pw
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
