@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.database import get_db
 from pydantic import BaseModel, EmailStr
-from app.utils import hash_password
+from app.utils.password import hash_password
 
 
 router = APIRouter(prefix="/users", tags=["users"])
